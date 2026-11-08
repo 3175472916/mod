@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "mineboard",
+  "version": "${version}",
+  "name": "MineBoard",
+  "description": "服务端挖掘计分榜：统计每位玩家挖掉的方块总数，并镜像到原版计分板（侧边栏自动按分数排序）。",
+  "authors": [
+    "you"
+  ],
+  "contact": {},
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "dev.mineboard.MineBoard"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.19.5",
+    "minecraft": "~26.3",
+    "java": ">=25",
+    "fabric-api": ">=0.165.2"
+  }
+}

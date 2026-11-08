@@ -1,0 +1,55 @@
+plugins {
+    // 26.1 起 Minecraft 不再混淆，必须用非重映射版 Loom：
+    //   net.fabricmc.fabric-loom        -> 26.1+（不混淆）
+    //   net.fabricmc.fabric-loom-remap  -> 1.21.11 及更早（混淆）
+    // 旧的 'fabric-loom' 只用于兼容老版本的混淆工程，对 26.3 不适用。
+    id 'net.fabricmc.fabric-loom' version '1.17.21'
+}
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+    archivesName = project.archives_base_name
+}
+
+repositories {
+    maven {
+        name = 'Fabric'
+        url = 'https://maven.fabricmc.net/'
+    }
+    mavenCentral()
+}
+
+dependencies {
+    // 26.x 无混淆，不需要任何 mappings 依赖（Yarn 已停止维护）。
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+}
+
+processResources {
+    inputs.property "version", project.version
+    filesMatching("fabric.mod.json") {
+        expand "version": inputs.properties.version
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.encoding = "UTF-8"
+    it.options.release = 25
+}
+
+java {
+    withSourcesJar()
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+jar {
+    inputs.property "archivesName", project.base.archivesName
+    from("LICENSE") {
+        rename { "${it}_${inputs.properties.archivesName}" }
+    }
+}
