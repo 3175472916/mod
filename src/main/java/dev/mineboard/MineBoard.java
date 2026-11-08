@@ -176,13 +176,15 @@ public final class MineBoard implements ModInitializer {
         if (dispatcher == null) {
             return;
         }
+        // 静默源：原版 scoreboard 指令默认会把结果广播给 OP，挖方块时会刷屏。
+        CommandSourceStack source = server.createCommandSourceStack().withSuppressedOutput();
         try {
-            dispatcher.execute(command, server.createCommandSourceStack());
+            dispatcher.execute(command, source);
         } catch (Exception first) {
             // 目标被管理员删掉了：重建后重试一次。
             try {
                 ensureObjective(server);
-                dispatcher.execute(command, server.createCommandSourceStack());
+                dispatcher.execute(command, source);
             } catch (Exception second) {
                 LOGGER.debug("[MineBoard] 写入计分板失败: {}", command, second);
             }
@@ -198,7 +200,7 @@ public final class MineBoard implements ModInitializer {
             return;
         }
         try {
-            dispatcher.execute(command, server.createCommandSourceStack());
+            dispatcher.execute(command, server.createCommandSourceStack().withSuppressedOutput());
         } catch (Exception e) {
             LOGGER.debug("[MineBoard] 指令执行失败: {}", command, e);
         }
