@@ -2,7 +2,6 @@ plugins {
     // 26.1 起 Minecraft 不再混淆，必须用非重映射版 Loom：
     //   net.fabricmc.fabric-loom        -> 26.1+（不混淆）
     //   net.fabricmc.fabric-loom-remap  -> 1.21.11 及更早（混淆）
-    // 旧的 'fabric-loom' 只用于兼容老版本的混淆工程，对 26.3 不适用。
     id 'net.fabricmc.fabric-loom' version '1.17.21'
 }
 
@@ -22,10 +21,12 @@ repositories {
 }
 
 dependencies {
-    // 26.x 无混淆，不需要任何 mappings 依赖（Yarn 已停止维护）。
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+
+    // 非重映射模式没有 modImplementation / modApi 这些配置，
+    // 直接用 implementation；Fabric API 的各个模块会通过 POM 依赖传递进来。
+    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 }
 
 processResources {
