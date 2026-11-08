@@ -40,16 +40,18 @@ public final class MineBoard implements ModInitializer {
     private static MineBoard instance;
 
     private MineBoardConfig config;
-    private final MineBoardStats stats;
+    private MineBoardStats stats;
     /** 已经写进计分板的值，避免每秒重复下发同样的指令。 */
     private final Map<UUID, Long> lastSynced = new HashMap<>();
 
     private CommandDispatcher<CommandSourceStack> dispatcher;
     private int tickCounter;
 
-    private MineBoard(MineBoardConfig config, MineBoardStats stats) {
-        this.config = config;
-        this.stats = stats;
+    /**
+     * Fabric 会用 {@code Class#getDeclaredConstructor()} 反射实例化入口类，
+     * 所以必须保留一个无参构造。
+     */
+    public MineBoard() {
     }
 
     public static MineBoard get() {
@@ -75,7 +77,9 @@ public final class MineBoard implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        instance = new MineBoard(MineBoardConfig.load(), MineBoardStats.load());
+        instance = this;
+        this.config = MineBoardConfig.load();
+        this.stats = MineBoardStats.load();
 
         PlayerBlockBreakEvents.AFTER.register((level, player, pos, state, blockEntity) ->
                 instance.onBlockBroken(player, state));
