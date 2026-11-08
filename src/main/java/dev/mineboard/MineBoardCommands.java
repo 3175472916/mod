@@ -11,7 +11,9 @@ import java.util.Map;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.permissions.PermissionLevel;
 
 /**
  * {@code /mineboard} 指令树。
@@ -36,20 +38,20 @@ public final class MineBoardCommands {
                                 .executes(context -> blocks(context.getSource(),
                                         StringArgumentType.getString(context, "player")))))
                 .then(Commands.literal("display")
-                        .requires(source -> source.hasPermission(2))
+                        .requires(MineBoardCommands::isAdmin)
                         .then(Commands.literal("sidebar")
                                 .executes(context -> display(context.getSource(), true)))
                         .then(Commands.literal("off")
                                 .executes(context -> display(context.getSource(), false))))
                 .then(Commands.literal("reset")
-                        .requires(source -> source.hasPermission(2))
+                        .requires(MineBoardCommands::isAdmin)
                         .then(Commands.literal("all")
                                 .executes(context -> resetAll(context.getSource())))
                         .then(Commands.argument("player", StringArgumentType.greedyString())
                                 .executes(context -> resetPlayer(context.getSource(),
                                         StringArgumentType.getString(context, "player")))))
                 .then(Commands.literal("reload")
-                        .requires(source -> source.hasPermission(2))
+                        .requires(MineBoardCommands::isAdmin)
                         .executes(context -> reload(context.getSource()))));
     }
 
@@ -173,6 +175,15 @@ public final class MineBoardCommands {
     // ------------------------------------------------------------------
     // 工具
     // ------------------------------------------------------------------
+
+    /** 管理指令的权限节点；没有 mod 注册该节点时，回落到原版权限等级 GAMEMASTERS（即 OP 等级 2）。 */
+    private static final Identifier ADMIN_PERMISSION =
+            Identifier.fromNamespaceAndPath(MineBoard.MOD_ID, "command/admin");
+
+    private static boolean isAdmin(CommandSourceStack source) {
+        // 26.x 用 PermissionLevel 取代了旧的 hasPermission(int)
+        return source.checkPermission(ADMIN_PERMISSION, PermissionLevel.GAMEMASTERS);
+    }
 
     private static void reply(CommandSourceStack source, String text) {
         source.sendSuccess(() -> Component.literal(text), false);
